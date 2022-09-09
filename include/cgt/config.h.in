@@ -1,0 +1,7 @@
+#pragma once
+
+#include <cstdint>
+
+constexpr uint32_t CGT_VERSION_MAJOR = @CGT_VERSION_MAJOR@;
+constexpr uint32_t CGT_VERSION_MINOR = @CGT_VERSION_MINOR@;
+constexpr const char* CGT_VERSION = "@CGT_VERSION_MAJOR@.@CGT_VERSION_MINOR@";
