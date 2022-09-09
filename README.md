@@ -46,7 +46,6 @@ cgt.exe -i ./Data -o ./\DataT --metadata ./Data/metadata.xml --target-srs EPSG:4
   └ Data/Tile_000_000/Tile_000_000.osgb
 ```
 
-
 # How To Build
 1. Windows下建议使用Vcpkg来管理C++依赖，Ubuntu等Linux操作系统可直接使用apt安装。
 2. 版本说明：
