@@ -14,6 +14,7 @@ add_executable(cgt
 
 target_link_libraries(cgtcore
 		PROJ::proj
+		${GDAL_LIBRARIES}
 		${OPENSCENEGRAPH_LIBRARIES})
 
 target_link_libraries(cgt cgtcore)

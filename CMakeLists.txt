@@ -36,4 +36,6 @@ include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
 find_package(PROJ REQUIRED)
 include_directories(${PROJ_INCLUDE_DIRS})
 
+find_package(GDAL REQUIRED)
+include_directories(${GDAL_INCLUDE_DIRS})
 add_subdirectory(cgt)

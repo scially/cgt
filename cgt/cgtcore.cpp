@@ -4,8 +4,9 @@
 
 #include <cgt/cgtcore.h>
 #include <cgt/cgtproj.h>
-#include <BS_thread_pool/BS_thread_pool.hpp>
+#include <cgt/gdalcpp.hpp>
 
+#include <BS_thread_pool/BS_thread_pool.hpp>
 #include <osgDB/ReadFile>
 #include <osgDB/WriteFile>
 #include <osg/CoordinateSystemNode>
@@ -32,7 +33,7 @@ namespace scially {
 	}
 
     void geom_visitor::apply(osg::PagedLOD& lod) {
-        lod.setDatabasePath(lod_path_);
+        lod.setDatabasePath("./");
     }
 
 	void node_operator::read(const std::string& path) {
@@ -50,7 +51,7 @@ namespace scially {
 	}
 
 	void node_operator::apply(const std::string& dir, std::function<osg::Vec3(osg::Vec3)> algorithm) {
-        geom_visitor visitor(dir, algorithm);
+        geom_visitor visitor(algorithm);
         node_->accept(visitor);
 	}
 
@@ -215,4 +216,114 @@ namespace scially {
             target_metadata_.set_z(0);
         }
     }
+
+    osg_export::osg_export(const std::string &source_dir, const std::string &target_dir) :
+        source_dir_(source_dir), target_dir_(target_dir){
+
+    }
+
+    void osg_export::set_extent(const std::string& shp){
+        static scially::detail::init_library initLibrary;
+        Dataset dataset(shp);
+        Layer layer =  dataset.GetLayer(0);
+        Feature feature = layer.GetFeature(0);
+        geometry_  = feature.GetGeometry();
+        OGRSpatialReference *source_srs = layer.GetSpatialRef();
+        OGRSpatialReference target_srs;
+        OGRCoordinateTransformation *poCT;
+        if(source_metadata_.srs().substr(0, 4) == "EPSG"){
+            std::string epsg_code = source_metadata_.srs().substr(5);
+            target_srs.importFromEPSG(atoi(epsg_code.c_str()));
+        }else if(source_metadata_.srs()[0] == '+'){
+            target_srs.importFromProj4(source_metadata_.srs().c_str());
+        }else{
+            target_srs.importFromWkt(source_metadata_.srs().c_str());
+        }
+        poCT = OGRCreateCoordinateTransformation( source_srs,
+                                                  &target_srs );
+        geometry_->transform(poCT);
+        OGRCoordinateTransformation::DestroyCT(poCT);
+    }
+
+    void osg_export::run(uint32_t max_thread){
+
+        auto this_algorithm = [](osg::Vec3 vec){
+            return vec;
+        };
+
+        max_thread = max_thread == 0 ?  std::thread::hardware_concurrency() - 1 : 1;
+        BS::thread_pool thread_pool(max_thread);
+        spdlog::info("cgt set thread to {}", max_thread);
+
+        for(const auto &tile_dir : fs::directory_iterator(source_dir_,
+                                                          ~fs::directory_options::follow_directory_symlink
+                                                          | fs::directory_options::skip_permission_denied)){
+            if(!fs::is_directory(tile_dir.path()))
+                continue;
+
+            std::string tile_name = tile_dir.path().stem().string();
+            std::string tile_path = (tile_dir.path() / (tile_name + ".osgb")).string();
+            if(!is_intersect(tile_path))
+                continue;
+
+            spdlog::info("tile {} OK!", fs::path(tile_path).stem().string());
+
+            if(!is_copy_)
+                continue;
+
+            fs::path tile_target_dir = fs::path(target_dir_) / tile_name;
+            if(!fs::exists(tile_target_dir))
+                fs::create_directories(tile_target_dir);
+
+            for(const auto &tile : fs::directory_iterator(tile_dir.path(),
+                                                          ~fs::directory_options::follow_directory_symlink
+                                                          | fs::directory_options::skip_permission_denied)) {
+                thread_pool.push_task([this_algorithm](
+                        const osg_modeldata& source_metadata,
+                        const std::string &tile_path,
+                        const std::string &out_dir){
+                    //spdlog::info("start process {}", fs::path(tile_path).stem().string());
+                    node_operator tile_processor;
+                    tile_processor.read(tile_path);
+                    tile_processor.apply(out_dir, this_algorithm);
+                    tile_processor.write(out_dir);
+                }, source_metadata_, tile.path().string(), tile_target_dir.string());
+            }
+        }
+        thread_pool.wait_for_tasks();
+        source_metadata_.write(target_dir_ + "/metadata.xml");
+    }
+
+    bool osg_export::is_intersect(const std::string &tile_path){
+        static osg::EllipsoidModel ellipsoid;
+        osg::ref_ptr<osg::Node> node = osgDB::readRefNodeFile(tile_path);
+        const osg::BoundingSphere bound = node->getBound();
+        double x = bound.center().x();
+        double y = bound.center().y();
+        double z = bound.center().z();
+        double ellipsoid_x = 0, ellipsoid_y = 0, ellipsoid_z = 0;
+        OGRPoint p;
+        if(source_metadata_.srs() == "EPSG:4326"){
+            double lat, lng, h;
+            ellipsoid.convertLatLongHeightToXYZ(
+                    osg::DegreesToRadians(source_metadata_.x()),
+                    osg::DegreesToRadians(source_metadata_.y()),
+                    osg::DegreesToRadians(source_metadata_.z()),
+                    ellipsoid_x,ellipsoid_y,ellipsoid_z
+            );
+            x += ellipsoid_x;
+            y += ellipsoid_y;
+            z += ellipsoid_z;
+            ellipsoid.convertXYZToLatLongHeight(x, y, z, lat, lng, h);
+            lat = osg::RadiansToDegrees(lat);
+            lng = osg::RadiansToDegrees(lng);
+            p = OGRPoint(lat, lng);
+        }else{
+            p = OGRPoint(x + source_metadata_.x(), y + source_metadata_.y());
+        }
+
+
+        return geometry_->Intersects(&p);
+    }
+
 }

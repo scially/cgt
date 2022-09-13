@@ -6,6 +6,7 @@
 
 #include <cgt/cgtmodel.h>
 #include <cgt/cgtproj.h>
+#include <cgt/gdalcpp.hpp>
 #include <spdlog/spdlog.h>
 
 #include <osg/Node>
@@ -21,8 +22,8 @@ namespace scially {
 
     class geom_visitor : public osg::NodeVisitor {
     public:
-        geom_visitor(const std::string &lod_path, std::function<osg::Vec3(osg::Vec3)> algorithm)
-            : algorithm_(algorithm), lod_path_(lod_path){
+        geom_visitor( std::function<osg::Vec3(osg::Vec3)> algorithm)
+            : algorithm_(algorithm){
             setTraversalMode(TRAVERSE_ALL_CHILDREN);
         }
         virtual ~geom_visitor() {}
@@ -31,9 +32,10 @@ namespace scially {
         virtual void apply(osg::PagedLOD& lod) override;
     private:
         std::function<osg::Vec3(osg::Vec3)> algorithm_;
-        std::string lod_path_;
+
     };
-  
+
+
     class node_operator {
     public:
         void read(const std::string& path);
@@ -63,5 +65,28 @@ namespace scially {
 
         osg_modeldata source_metadata_;
         osg_modeldata target_metadata_;
+    };
+
+    class osg_export{
+    public:
+        osg_export(const std::string& source_dir, const std::string& target_dir);
+        void set_source_metadata(const osg_modeldata &modeldata) { source_metadata_ = modeldata; }
+        void set_is_copy(bool is_copy) { is_copy_ = is_copy; }
+        void set_extent(const std::string& shp);
+        void run(uint32_t max_thread = 0);
+
+        ~osg_export() {
+            if(geometry_)
+                delete geometry_;
+        }
+    private:
+        bool is_intersect(const std::string &tile_path);
+
+        bool is_copy_ = false;
+        std::string source_dir_;
+        std::string target_dir_;
+        std::string shpfile_;
+        osg_modeldata source_metadata_;
+        OGRGeometry *geometry_ = nullptr;
     };
 }
