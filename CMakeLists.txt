@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.12)
-project(CGT VERSION 1.0)
+project(CGT VERSION 2.0)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${PROJECT_SOURCE_DIR}/cmake")
@@ -32,9 +32,6 @@ find_package(OpenSceneGraph
 	osgUtil)
 
 include_directories(${OPENSCENEGRAPH_INCLUDE_DIRS})
-
-find_package(PROJ REQUIRED)
-include_directories(${PROJ_INCLUDE_DIRS})
 
 find_package(GDAL REQUIRED)
 include_directories(${GDAL_INCLUDE_DIRS})

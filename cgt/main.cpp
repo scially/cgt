@@ -1,4 +1,5 @@
-#include <cgt/cgtcore.h>
+#include <cgt/cgttransform.h>
+#include <cgt/cgtexport.h>
 #include <cgt/config.h>
 #include <CLI11/CLI11.hpp>
 
@@ -12,8 +13,8 @@ int main(int argc, char *argv[]) {
     std::string  target_srs;
     std::string  source_srs;
     std::string  source_srs_origin = "0,0,0";
+    std::string  target_srs_origin = "0,0,0";
     std::string  shapefile;
-    bool         is_copy = false;
     uint32_t     thread = 0;
 
     app.set_version_flag("-v,--version", CGT_VERSION);
@@ -39,7 +40,7 @@ int main(int argc, char *argv[]) {
         .add_option("--source-srs", source_srs, "source srs")
         ->required(false);
     app
-        .add_option("--source-origin", source_srs_origin, "soure srs origin (default: 0,0,0)")
+        .add_option("--source-origin", source_srs_origin, "source srs origin (default: 0,0,0)")
         ->required(false);
     app
         .add_option("-t,--thread", thread, "thread")
@@ -48,12 +49,13 @@ int main(int argc, char *argv[]) {
     transform_app
         ->add_option("--target-srs", target_srs, "target srs")
         ->required(true);
+    transform_app
+            ->add_option("--target-origin", target_srs_origin, "target srs origin (default: 0,0,0)")
+            ->required(false);
     export_app
         ->add_option("--shapefile", shapefile, "export extent")
         ->check(CLI::ExistingFile)
         ->required(true);
-    export_app
-        ->add_option("-c,--copy", is_copy, "copy osgb to target dir");
 
     CLI11_PARSE(app, argc, argv);
 
@@ -71,7 +73,7 @@ int main(int argc, char *argv[]) {
 
     if(transform_app->parsed()){
         scially::osg_modeldata target_modeldata;
-        target_modeldata.load(target_srs, "0,0,0");
+        target_modeldata.load(target_srs, target_srs_origin);
 
         scially::osg_transform transform(in_location, out_location);
         transform.set_source_metadata(source_modeldata);
@@ -83,7 +85,6 @@ int main(int argc, char *argv[]) {
     if(export_app->parsed()){
         scially::osg_export osg_export(in_location, out_location);
         osg_export.set_source_metadata(source_modeldata);
-        osg_export.set_is_copy(is_copy);
         osg_export.set_extent(shapefile);
         osg_export.run(thread);
         return 0;

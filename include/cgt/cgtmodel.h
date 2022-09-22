@@ -1,14 +1,15 @@
 #pragma once
 
 #include <cgt/cgtexception.h>
+#include <osg/Vec3>
 
 #include <vector>
 #include <cstdint>
 #include <string>
-#include <string>
+#include <sstream>
 
 namespace scially {
-    std::vector<std::string> split(std::string_view str, std::string_view delimiters);
+    std::vector<std::string> split(const std::string& str, const std::string& delimiters);
 
     class osg_modeldata {
     public:
@@ -16,24 +17,19 @@ namespace scially {
         void load_from_file(const std::string& input);
         void write(const std::string &output);
 
-        double x() const { return x_; }
-        double y() const { return y_; }
-        double z() const { return z_; }
-        std::string srs() const { return srs_; }
+        std::string srs() const noexcept { return srs_; }
+        void set_srs(const std::string &srs) noexcept {  srs_ = srs; }
+        osg::Vec3 origin() const noexcept { return origin_; }
+        void set_origin(osg::Vec3 origin) noexcept { origin_ = origin;}
 
-        void set_x(double x) { x_ = x;}
-        void set_y(double y) { y_ = y;}
-        void set_z(double z) { z_ = z;}
-        void set_srs(const std::string& srs) { srs_ = srs; }
+        bool is_valid() const noexcept { return !srs_.empty(); }
+
     private:
-        void parse_origin(const std::string& srs_origin);
-        void parse_srs_origin(const std::string& srs, const std::string&  srs_origin);
+        osg::Vec3 parse_origin(const std::string& srs_origin) const noexcept;
 
-        double x_ = 0;
-        double y_ = 0;
-        double z_ = 0;
         // GZ2000 => EPSG:0
-        // ENU => EPSG:4326
+        // ENU: lat, lnt, h => topocentric
         std::string srs_;
+        osg::Vec3 origin_;
     };
 }

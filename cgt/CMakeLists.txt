@@ -5,15 +5,16 @@ configure_file(
 add_library(cgtcore 
 	"cgtcore.cpp"
 	"cgtmodel.cpp"  
-	"tinyxml2.cpp")
+	"tinyxml2.cpp"
+	"cgtproj.cpp"
+	"cgtvisitor.cpp"
+	"cgttransform.cpp"
+	"cgtexport.cpp")
 
 add_executable(cgt 	
-	"main.cpp"
-	)
-
+	"main.cpp")
 
 target_link_libraries(cgtcore
-		PROJ::proj
 		${GDAL_LIBRARIES}
 		${OPENSCENEGRAPH_LIBRARIES})
 
