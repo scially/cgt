@@ -18,15 +18,21 @@ namespace scially {
 
     class cgt_proj {
     public:
-        cgt_proj(const osg_modeldata& source_modeldata,  const osg_modeldata& target_modeldata);
+        cgt_proj(const osg_modeldata &source_modeldata, const osg_modeldata &target_modeldata);
+
         osg::Vec3 transfrom(osg::Vec3 vert) const;
-        void transform(OGRGeometry* geom) const;
+
+        void transform(OGRGeometry *geom) const;
 
     private:
-        OGRSpatialReference import(const std::string& srs) const;
-        std::string crs_to_proj(const std::string &source_crs) const noexcept;
-        osg::Vec3 pj_transorm (osg::Vec3 vert, bool forward = true) const;
-        osg::Vec3 pj_transorm (double x, double y, double z, bool forward = true) const;
+        OGRSpatialReference import(const std::string &srs) const;
+
+        void crs_to_proj(const std::string &source_crs,
+                         std::string &proj_crs, osg::Vec3 &topcenteric, bool &is_topcenteric) const noexcept;
+
+        osg::Vec3 pj_transorm(osg::Vec3 vert, bool forward = true) const;
+
+        osg::Vec3 pj_transorm(double x, double y, double z, bool forward = true) const;
 
         osg_modeldata source_metadata_;
         osg_modeldata target_metadata_;
@@ -34,6 +40,14 @@ namespace scially {
         std::function<osg::Vec3(osg::Vec3)> transformer_;
         OGRSpatialReference source_srs_;
         OGRSpatialReference target_srs_;
+        osg::Matrixd source_local_to_world_;
+        osg::Matrixd target_world_to_local_;
+        osg::EllipsoidModel ellipsoid_;
+
+        bool source_srs_is_topcenteric_ = false;
+        bool target_srs_is_topcenteric_ = false;
+        osg::Vec3 source_topcenteric_;
+        osg::Vec3 target_topcenteric_;
         std::unique_ptr<OGRCoordinateTransformation> transform_srs_;
     };
 }
