@@ -20,7 +20,6 @@ namespace scially {
     }; // struct ogr_feature_deleter
 
     void osg_export::set_extent(const std::string& shp){
-        GDALAllRegister();
         std::unique_ptr<GDALDataset, gdal_dataset_deleter> dataset(
                 (GDALDataset*)GDALOpenEx(shp.c_str(),
                                          GDAL_OF_VECTOR,

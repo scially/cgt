@@ -15,6 +15,14 @@
 #include <functional>
 
 namespace scially {
+    class gdal_init {
+    public:
+        gdal_init(const std::string &program_path);
+
+    private:
+        std::string gdal_data_;
+        std::string proj_data_;
+    };
 
     class cgt_proj {
     public:
@@ -29,9 +37,7 @@ namespace scially {
 
         void crs_to_proj(const std::string &source_crs,
                          std::string &proj_crs, osg::Vec3 &topcenteric, bool &is_topcenteric) const noexcept;
-
         osg::Vec3 pj_transorm(osg::Vec3 vert, bool forward = true) const;
-
         osg::Vec3 pj_transorm(double x, double y, double z, bool forward = true) const;
 
         osg_modeldata source_metadata_;

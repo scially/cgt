@@ -6,15 +6,36 @@
 #include <osg/CoordinateSystemNode>
 #include <osg/Math>
 
+#include <filesystem>
+
 namespace scially {
-    class OGRPointOffsetVisitor: public OGRDefaultGeometryVisitor{
+    namespace fs = std::filesystem;
+
+    gdal_init::gdal_init(const std::string &program_path) {
+#ifdef _WIN32
+        CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
+#else
+        CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "YES");
+#endif
+        auto base_path = fs::path(program_path).parent_path();
+        gdal_data_ = (base_path / "gdal/data").string();
+        proj_data_ = (base_path / "proj/data").string();
+        GDALAllRegister();
+        CPLSetConfigOption("GDAL_DATA", gdal_data_.c_str());
+        const char *const proj_lib_path[] = {proj_data_.c_str(), nullptr};
+        OSRSetPROJSearchPaths(proj_lib_path);
+    }
+
+    class OGRPointOffsetVisitor : public OGRDefaultGeometryVisitor {
     public:
-        OGRPointOffsetVisitor(double x, double y, double z = 0): x_(x), y_(y), z_(z){}
-        void visit(OGRPoint* point) override {
+        OGRPointOffsetVisitor(double x, double y, double z = 0) : x_(x), y_(y), z_(z) {}
+
+        void visit(OGRPoint *point) override {
             point->setX(point->getX() + x_);
             point->setY(point->getY() + y_);
             point->setZ(point->getY() + z_);
         }
+
     private:
         double x_;
         double y_;

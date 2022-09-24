@@ -6,15 +6,17 @@
 #include <string>
 
 int main(int argc, char *argv[]) {
+    static scially::gdal_init gdal_init_(argv[0]);
+
     CLI::App app{"cgt(by hwang@126.com)"};
-    std::string  in_location;
-    std::string  out_location;
-    std::string  metadata_location;
-    std::string  target_srs;
-    std::string  source_srs;
-    std::string  source_srs_origin = "0,0,0";
-    std::string  target_srs_origin = "0,0,0";
-    std::string  shapefile;
+    std::string in_location;
+    std::string out_location;
+    std::string metadata_location;
+    std::string target_srs;
+    std::string source_srs;
+    std::string source_srs_origin = "0,0,0";
+    std::string target_srs_origin = "0,0,0";
+    std::string shapefile;
     uint32_t     thread = 0;
 
     app.set_version_flag("-v,--version", CGT_VERSION);

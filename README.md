@@ -62,5 +62,5 @@ cgt.exe -i {DATA} -o ${OUT_DIR} --metadata {Mmetadata.xml} export --shapefile {s
    1. GCC >= 8.0 OR MSVC 2019以上
    2. GDAL >= 3.0
    3. OSG >= 3.2
-3. VS2019选择CMakeLists.txt，导入工程，编译
+3. Visual Studio 选择CMakeLists.txt，导入工程，编译后，会自动将GDAL_DATA和PROJ_LIB拷贝到执行目录下
 4. 将OSGPlugins-${Version}文件夹复制到编译目录下
