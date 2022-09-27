@@ -8,7 +8,11 @@
 
 namespace scially {
     namespace fs = std::filesystem;
-    bool osg_transform::tile_process(scially::cgt_proj &proj, const std::string& root_name, const std::string &tile_path) {
+
+    bool osg_transform::tile_process(scially::cgt_proj &proj, const std::string &tile_path) {
+        std::string root_name = get_root_name(tile_path);
+        std::string data_name = get_data_name(tile_path);
+
         node_operator tile_processor;
         tile_processor.read(tile_path);
         std::string base_path = (fs::path(target_dir_) / root_name).string();
@@ -16,7 +20,7 @@ namespace scially {
             return proj.transfrom(vert);
         });
 
-        std::string out_dir = (fs::path(target_dir_) / root_name).string();
+        std::string out_dir = (fs::path(target_dir_) / data_name / root_name).string();
         tile_processor.write(out_dir);
         return true;
     }

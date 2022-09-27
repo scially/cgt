@@ -11,13 +11,13 @@ int main(int argc, char *argv[]) {
     CLI::App app{"cgt(by hwang@126.com)"};
     std::string in_location;
     std::string out_location;
-    std::string metadata_location;
     std::string target_srs;
     std::string source_srs;
     std::string source_srs_origin = "0,0,0";
     std::string target_srs_origin = "0,0,0";
     std::string shapefile;
-    uint32_t     thread = 0;
+    bool is_copy = true;
+    uint32_t thread = 0;
 
     app.set_version_flag("-v,--version", CGT_VERSION);
     auto transform_app = app.add_subcommand("transform", "coordinate transform");
@@ -25,19 +25,13 @@ int main(int argc, char *argv[]) {
     app.require_subcommand();
 
     app
-        .add_option("-i,--in", in_location, "osg Data path")
-        ->check(CLI::ExistingDirectory)
-        ->required(true);
+            .add_option("-i,--in", in_location, "osg Data path")
+            ->check(CLI::ExistingDirectory)
+            ->required(true);
     app
         .add_option("-o,--out", out_location, "output location")
         ->check(CLI::ExistingDirectory)
         ->required(true);
-
-    app
-        .add_option("--metadata", metadata_location, "metadata.xml location")
-        ->check(CLI::ExistingFile)
-        ->required(false);
-
     app
         .add_option("--source-srs", source_srs, "source srs")
         ->required(false);
@@ -49,27 +43,30 @@ int main(int argc, char *argv[]) {
         ->required(false);
 
     transform_app
-        ->add_option("--target-srs", target_srs, "target srs")
-        ->required(true);
+            ->add_option("--target-srs", target_srs, "target srs")
+            ->required(true);
     transform_app
             ->add_option("--target-origin", target_srs_origin, "target srs origin (default: 0,0,0)")
             ->required(false);
     export_app
-        ->add_option("--shapefile", shapefile, "export extent")
-        ->check(CLI::ExistingFile)
-        ->required(true);
+            ->add_option("--shapefile", shapefile, "export extent")
+            ->check(CLI::ExistingFile)
+            ->required(true);
+    export_app
+            ->add_option("-c,--copy", is_copy, "export extent")
+            ->required(false);
 
     CLI11_PARSE(app, argc, argv);
 
     scially::osg_modeldata source_modeldata;
-    if(!metadata_location.empty()){
-        try{
-            source_modeldata.load_from_file(metadata_location);
-        }catch(scially::cgt_exception &e){
+    if (source_srs.empty()) {
+        try {
+            source_modeldata.load_from_dir(in_location);
+        } catch (scially::cgt_exception &e) {
             spdlog::error(e.what());
+            return -1;
         }
-
-    }else{
+    } else {
         source_modeldata.load(source_srs, source_srs_origin);
     }
 
@@ -92,5 +89,5 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    return 0;
+    return -1;
 }

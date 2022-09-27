@@ -7,12 +7,19 @@
 #include <cgt/cgtmodel.h>
 #include <osg/Node>
 #include <osg/CoordinateSystemNode>
+#include <osgDB/ConvertUTF>
 
 #include <gdal_frmts.h>
 #include <ogrsf_frmts.h>
 #include <string>
 #include <memory>
 #include <functional>
+
+#ifdef _WIN32
+#define U8TEXT(s) osgDB::convertStringFromCurrentCodePageToUTF8(s)
+#else
+#define U8TEXT(s) s
+#endif
 
 namespace scially {
     class gdal_init {

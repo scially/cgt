@@ -4,6 +4,7 @@
 
 #include <cgt/cgtproj.h>
 #include <osg/CoordinateSystemNode>
+#include <osgDB/FileNameUtils>
 #include <osg/Math>
 
 #include <filesystem>
@@ -13,17 +14,19 @@ namespace scially {
 
     gdal_init::gdal_init(const std::string &program_path) {
 #ifdef _WIN32
-        CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "NO");
+        CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "YES");
 #else
         CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "YES");
 #endif
         auto base_path = fs::path(program_path).parent_path();
-        gdal_data_ = (base_path / "gdal/data").string();
-        proj_data_ = (base_path / "proj/data").string();
-        GDALAllRegister();
+        gdal_data_ = U8TEXT((base_path / "gdal/data").string());
+        proj_data_ = U8TEXT((base_path / "proj/data").string());
+        gdal_data_ = osgDB::convertFileNameToNativeStyle(gdal_data_);
+        proj_data_ = osgDB::convertFileNameToNativeStyle(proj_data_);
         CPLSetConfigOption("GDAL_DATA", gdal_data_.c_str());
         const char *const proj_lib_path[] = {proj_data_.c_str(), nullptr};
         OSRSetPROJSearchPaths(proj_lib_path);
+        GDALAllRegister();
     }
 
     class OGRPointOffsetVisitor : public OGRDefaultGeometryVisitor {

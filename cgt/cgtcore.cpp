@@ -21,8 +21,8 @@ namespace scially {
     namespace fs = std::filesystem;
 
 	void node_operator::read(const std::string& path) {
-		node_name_ = fs::path(path).stem().string();
-		node_ = osgDB::readRefNodeFile(path);
+        node_name_ = fs::path(path).stem().string();
+        node_ = osgDB::readRefNodeFile(U8TEXT(path));
 	}
 
 	void node_operator::write(const std::string& dir) {
@@ -30,7 +30,7 @@ namespace scially {
         osg::ref_ptr<osgDB::Options> options = new osgDB::Options;
         //options->setOptionString("Compressor=zlib");
         options->setOptionString("WriteImageHint=IncludeFile");
-        osgDB::writeNodeFile(*node_, tile_outpath, options);
+        osgDB::writeNodeFile(*node_, U8TEXT(tile_outpath), options);
 	}
 
 	void node_operator::apply(const std::string &base_path, const vec3_transform& algorithm) {
@@ -49,7 +49,7 @@ namespace scially {
                 continue;
             fs::path tile_name = tile_dir.path().filename();
             std::string tile_path = (tile_dir.path() / tile_name).string() + ".osgb";
-            osg::ref_ptr<osg::Node> root = osgDB::readRefNodeFile(tile_path);
+            osg::ref_ptr<osg::Node> root = osgDB::readRefNodeFile(U8TEXT(tile_path));
             osg::ComputeBoundsVisitor cbv;
             root->accept(cbv);
             osg::BoundingBox bb = cbv.getBoundingBox(); // in local coords.
@@ -68,45 +68,58 @@ namespace scially {
 
         cgt_proj proj_(source_metadata_, target_metadata_);
 
-        for(const auto &data_dir : fs::directory_iterator(source_dir_,
-                                                          ~fs::directory_options::follow_directory_symlink
-                                                          | fs::directory_options::skip_permission_denied)) {
-            if (!fs::is_directory(data_dir.path()))
+        for (const auto &data_x_dir: fs::directory_iterator(source_dir_,
+                                                            ~fs::directory_options::follow_directory_symlink
+                                                            | fs::directory_options::skip_permission_denied)) {
+            if (!fs::is_directory(data_x_dir.path()))
                 continue;
 
-            std::string tile_name = data_dir.path().stem().string();
-            std::string tile_path = (data_dir.path() / (tile_name + ".osgb")).string();
-            spdlog::info("find data {}, start process tile", tile_name);
-            if(!root_process(proj_, tile_name, tile_path))
-                continue;
+            std::string data_x_name = data_x_dir.path().stem().string();
 
-            std::string tile_dir = data_dir.path().string();
-            std::string out_dir = (fs::path(target_dir_) / fs::path(tile_name)).string();
+            for (const auto &data_dir: fs::directory_iterator(data_x_dir.path(),
+                                                              ~fs::directory_options::follow_directory_symlink
+                                                              | fs::directory_options::skip_permission_denied)) {
+                if (!fs::is_directory(data_dir.path()))
+                    continue;
 
-            if(!fs::exists(out_dir)){
-                fs::create_directories(out_dir);
-            }
+                std::string tile_name = data_dir.path().stem().string();
+                std::string tile_path = (data_dir.path() / (tile_name + ".osgb")).string();
+                spdlog::info("find data {}/{}, start process tile", data_x_name, tile_name);
+                if (!root_process(proj_, tile_path))
+                    continue;
 
-            thread_pool.push_task([this, &proj_, tile_dir, out_dir](){
-                for(const auto &tile_path : fs::directory_iterator(tile_dir,
-                                                                  ~fs::directory_options::follow_directory_symlink
-                                                                  | fs::directory_options::skip_permission_denied)){
-                    if (fs::is_directory(tile_path.path()))
-                        continue;
-                    tile_process(proj_, fs::path(tile_dir).stem().string(), tile_path.path().string());
+                std::string tile_dir = data_dir.path().string();
+                std::string out_dir = (fs::path(target_dir_) / data_x_name / fs::path(tile_name)).string();
+
+                if (!fs::exists(out_dir)) {
+                    fs::create_directories(out_dir);
                 }
-            });
+
+                thread_pool.push_task([this, &proj_, tile_dir, out_dir]() {
+                    for (const auto &tile_path: fs::directory_iterator(tile_dir,
+                                                                       ~fs::directory_options::follow_directory_symlink
+                                                                       |
+                                                                       fs::directory_options::skip_permission_denied)) {
+                        if (fs::is_directory(tile_path.path()))
+                            continue;
+                        tile_process(proj_, tile_path.path().string());
+                    }
+                });
+            }
         }
 
         thread_pool.wait_for_tasks();
-        write_metadata();
         end_process();
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
         spdlog::info("Processing is completed, it takes {}s", duration.count() / 1000.0);
     }
 
-    void osg_base::write_metadata() {
-        target_metadata_.write(target_dir_ + "/metadata.xml");
+    std::string osg_base::get_root_name(const std::string &tile_path) {
+        return fs::path(tile_path).parent_path().stem().string();
+    }
+
+    std::string osg_base::get_data_name(const std::string &tile_path) {
+        return fs::path(tile_path).parent_path().parent_path().stem().string();
     }
 }

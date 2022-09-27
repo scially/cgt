@@ -13,8 +13,11 @@ namespace scially {
 
     class osg_modeldata {
     public:
-        void load(const std::string& srs, const std::string& srs_origin);
-        void load_from_file(const std::string& input);
+        void load(const std::string &srs, const std::string &srs_origin);
+
+        void load_from_dir(const std::string &input);
+
+        void load_from_file(const std::string &input);
         void write(const std::string &output);
 
         std::string srs() const noexcept { return srs_; }

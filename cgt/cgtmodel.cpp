@@ -6,9 +6,11 @@
 #include <cassert>
 #include <vector>
 #include <string>
+#include <filesystem>
 #include <algorithm>
 
 namespace scially {
+    namespace fs = std::filesystem;
 
     std::vector<std::string> split(const std::string& str, const std::string& delimiters) {
         std::vector<std::string> tokens;
@@ -24,19 +26,24 @@ namespace scially {
         return tokens;
     }
 
-    void osg_modeldata::load(const std::string& srs, const std::string& srs_origin) {
+    void osg_modeldata::load(const std::string &srs, const std::string &srs_origin) {
         srs_ = srs;
         origin_ = parse_origin(srs_origin);
     }
 
-    void osg_modeldata::load_from_file(const std::string& input){
+    void osg_modeldata::load_from_dir(const std::string &input) {
+        std::string metadata_location = (fs::path(input) / "metadata.xml").string();
+        load_from_file(metadata_location);
+    }
+
+    void osg_modeldata::load_from_file(const std::string &input) {
         tinyxml2::XMLDocument doc;
         tinyxml2::XMLError err = doc.LoadFile(input.c_str());
         if (err != tinyxml2::XML_SUCCESS) {
             throw cgt_exception("could not parse metadata.xml!");
         }
 
-        tinyxml2::XMLElement* root = doc.RootElement();
+        tinyxml2::XMLElement *root = doc.RootElement();
 
         if (strcmp(root->Name(), "ModelMetadata")) {
             throw cgt_exception("could not find ModelMetaData node in metadata.xml");

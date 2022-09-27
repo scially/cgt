@@ -11,26 +11,32 @@
 #include <vector>
 
 namespace scially {
-    class osg_export: public osg_base{
+    class osg_export : public osg_base {
     public:
-        osg_export(const std::string& source_dir, const std::string& target_dir)
-            : osg_base(source_dir, target_dir){
+        osg_export(const std::string &source_dir, const std::string &target_dir)
+                : osg_base(source_dir, target_dir) {
 
         }
 
-        void set_extent(const std::string& shp);
-        virtual bool root_process(cgt_proj& proj, const std::string& root_name, const std::string& tile_path) override;
-        virtual bool tile_process(cgt_proj& proj, const std::string& root_name, const std::string& tile_path) override;
-        virtual bool end_process() override;
-        virtual ~osg_export() {}
-    private:
-        bool is_intersect(const osg::Node& node);
+        void set_extent(const std::string &shp);
 
-        std::string source_dir_;
-        std::string target_dir_;
+        void set_copy(bool copy) { is_copy_ = copy; }
+
+        virtual bool root_process(cgt_proj &proj, const std::string &tile_path) override;
+
+        virtual bool tile_process(cgt_proj &proj, const std::string &tile_path) override;
+
+        virtual bool end_process() override;
+
+        virtual ~osg_export() {}
+
+    private:
+        bool is_intersect(const osg::Node &node);
+
         std::string shpfile_;
         std::unique_ptr<OGRGeometry> geometry_;
         std::unique_ptr<cgt_proj> proj_;
         std::vector<std::string> tiles;
+        bool is_copy_ = true;
     };
 }
