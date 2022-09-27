@@ -46,14 +46,14 @@ int main(int argc, char *argv[]) {
             ->add_option("--target-srs", target_srs, "target srs")
             ->required(true);
     transform_app
-            ->add_option("--target-origin", target_srs_origin, "target srs origin (default: 0,0,0)")
+            ->add_option("--target-origin", target_srs_origin, "target srs origin(default: 0,0,0)")
             ->required(false);
     export_app
             ->add_option("--shapefile", shapefile, "export extent")
             ->check(CLI::ExistingFile)
             ->required(true);
     export_app
-            ->add_option("-c,--copy", is_copy, "export extent")
+            ->add_option("-c,--copy", is_copy, "copy tile(default: true)")
             ->required(false);
 
     CLI11_PARSE(app, argc, argv);
