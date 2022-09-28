@@ -1,7 +1,9 @@
 # 简介
 倾斜常用工具集
-1. 支持投影坐标系之间，以及和WGS84之间坐标系互相转换。
+1. 支持投影坐标系以及WGS84之间坐标转换。
 2. 支持根据矢量范围线导出对应瓦片。
+3.
+百度网盘下载地址: [https://pan.baidu.com/s/1AdLGNJiA2iKKYbFwmGKQ5g?pwd=lxsa](https://pan.baidu.com/s/1AdLGNJiA2iKKYbFwmGKQ5g?pwd=lxsa)
 
 # 用法说明
 
@@ -34,12 +36,13 @@ Options:
 ```
 
 ### export
+
 ```shell
 cgt [options] export
 Options:
   --shapefile TEXT:FILE REQUIRED  export extent
   -c,--copy BOOLEAN               copy tile(default: true)
-
+  默认会在范围线的Tile拷贝的out路径下，通过设置 -c false 取消拷贝，只输出符合要求的瓦片名
 ```
 ## 示例命令
 
