@@ -2,17 +2,17 @@ configure_file(
 		${PROJECT_SOURCE_DIR}/include/cgt/config.h.in
 		${PROJECT_SOURCE_DIR}/include/cgt/config.h)
 
-add_library(cgtcore 
-	"cgtcore.cpp"
-	"cgtmodel.cpp"  
-	"tinyxml2.cpp"
-	"cgtproj.cpp"
-	"cgtvisitor.cpp"
-	"cgttransform.cpp"
-		"cgtexport.cpp")
+add_library(cgtcore
+		"cgtcore.cpp"
+		"cgtmodel.cpp"
+		"tinyxml2.cpp"
+		"cgtproj.cpp"
+		"cgtvisitor.cpp"
+		"cgttransform.cpp"
+		"cgtexport.cpp" cgtpath.cpp)
 
 add_executable(cgt
-		"main.cpp")
+		"main.cpp" ../include/cgt/cgtpath.h)
 
 target_link_libraries(cgtcore
 		${GDAL_LIBRARIES}

@@ -3,6 +3,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "description": "Schema for PROJJSON (v0.4)",
   "$comment": "This file exists both in data/ and in schemas/vXXX/. Keep both in sync. And if changing the value of $id, change PROJJSON_CURRENT_VERSION accordingly in io.cpp",
+
   "oneOf": [
     {
       "$ref": "#/definitions/crs"
@@ -26,7 +27,9 @@
       "$ref": "#/definitions/concatenated_operation"
     }
   ],
+
   "definitions": {
+
     "abridged_transformation": {
       "type": "object",
       "properties": {
@@ -70,6 +73,7 @@
       ],
       "additionalProperties": false
     },
+
     "axis": {
       "type": "object",
       "properties": {
@@ -155,6 +159,7 @@
       ],
       "additionalProperties": false
     },
+
     "bbox": {
       "type": "object",
       "properties": {
@@ -179,6 +184,7 @@
       ],
       "additionalProperties": false
     },
+
     "bound_crs": {
       "type": "object",
       "allOf": [
@@ -223,6 +229,7 @@
       ],
       "additionalProperties": false
     },
+
     "compound_crs": {
       "type": "object",
       "allOf": [
@@ -261,6 +268,7 @@
       ],
       "additionalProperties": false
     },
+
     "concatenated_operation": {
       "type": "object",
       "allOf": [
@@ -307,6 +315,7 @@
       ],
       "additionalProperties": false
     },
+
     "conversion": {
       "type": "object",
       "properties": {
@@ -349,6 +358,7 @@
       ],
       "additionalProperties": false
     },
+
     "coordinate_system": {
       "type": "object",
       "properties": {
@@ -402,6 +412,7 @@
       ],
       "additionalProperties": false
     },
+
     "crs": {
       "oneOf": [
         {
@@ -448,6 +459,7 @@
         }
       ]
     },
+
     "datum": {
       "oneOf": [
         {
@@ -473,6 +485,7 @@
         }
       ]
     },
+
     "datum_ensemble": {
       "type": "object",
       "properties": {
@@ -539,6 +552,7 @@
       ],
       "additionalProperties": false
     },
+
     "derived_engineering_crs": {
       "type": "object",
       "allOf": [
@@ -582,6 +596,7 @@
       ],
       "additionalProperties": false
     },
+
     "derived_geodetic_crs": {
       "type": "object",
       "allOf": [
@@ -626,6 +641,7 @@
       ],
       "additionalProperties": false
     },
+
     "derived_parametric_crs": {
       "type": "object",
       "allOf": [
@@ -669,6 +685,7 @@
       ],
       "additionalProperties": false
     },
+
     "derived_projected_crs": {
       "type": "object",
       "allOf": [
@@ -712,6 +729,7 @@
       ],
       "additionalProperties": false
     },
+
     "derived_temporal_crs": {
       "type": "object",
       "allOf": [
@@ -755,6 +773,7 @@
       ],
       "additionalProperties": false
     },
+
     "derived_vertical_crs": {
       "type": "object",
       "allOf": [
@@ -798,6 +817,7 @@
       ],
       "additionalProperties": false
     },
+
     "dynamic_geodetic_reference_frame": {
       "type": "object",
       "allOf": [
@@ -838,6 +858,7 @@
       ],
       "additionalProperties": false
     },
+
     "dynamic_vertical_reference_frame": {
       "type": "object",
       "allOf": [
@@ -875,6 +896,7 @@
       ],
       "additionalProperties": false
     },
+
     "ellipsoid": {
       "type": "object",
       "oneOf": [
@@ -983,6 +1005,7 @@
         }
       ]
     },
+
     "engineering_crs": {
       "type": "object",
       "allOf": [
@@ -1021,6 +1044,7 @@
       ],
       "additionalProperties": false
     },
+
     "engineering_datum": {
       "type": "object",
       "allOf": [
@@ -1055,6 +1079,7 @@
       ],
       "additionalProperties": false
     },
+
     "geodetic_crs": {
       "type": "object",
       "properties": {

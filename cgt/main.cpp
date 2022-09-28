@@ -6,7 +6,7 @@
 #include <string>
 
 int main(int argc, char *argv[]) {
-    static scially::gdal_init gdal_init_(argv[0]);
+    static scially::gdal_init gdal_init_;
 
     CLI::App app{"cgt(by hwang@126.com)"};
     std::string in_location;
@@ -29,9 +29,8 @@ int main(int argc, char *argv[]) {
             ->check(CLI::ExistingDirectory)
             ->required(true);
     app
-        .add_option("-o,--out", out_location, "output location")
-        ->check(CLI::ExistingDirectory)
-        ->required(true);
+            .add_option("-o,--out", out_location, "output location")
+            ->required(true);
     app
         .add_option("--source-srs", source_srs, "source srs")
         ->required(false);
@@ -49,7 +48,7 @@ int main(int argc, char *argv[]) {
             ->add_option("--target-origin", target_srs_origin, "target srs origin(default: 0,0,0)")
             ->required(false);
     export_app
-            ->add_option("--shapefile", shapefile, "export extent")
+            ->add_option("-s,--shapefile", shapefile, "export extent")
             ->check(CLI::ExistingFile)
             ->required(true);
     export_app
@@ -70,22 +69,32 @@ int main(int argc, char *argv[]) {
         source_modeldata.load(source_srs, source_srs_origin);
     }
 
-    if(transform_app->parsed()){
+    if(transform_app->parsed()) {
         scially::osg_modeldata target_modeldata;
         target_modeldata.load(target_srs, target_srs_origin);
 
         scially::osg_transform transform(in_location, out_location);
         transform.set_source_metadata(source_modeldata);
         transform.set_target_metadata(target_modeldata);
-        transform.run(thread);
+        try {
+            transform.run(thread);
+        } catch (scially::cgt_exception &e) {
+            spdlog::error(e.what());
+            return -1;
+        }
         return 0;
     }
 
-    if(export_app->parsed()){
+    if(export_app->parsed()) {
         scially::osg_export osg_export(in_location, out_location);
         osg_export.set_source_metadata(source_modeldata);
-        osg_export.set_extent(shapefile);
-        osg_export.run(thread);
+        try {
+            osg_export.set_extent(shapefile);
+            osg_export.run(thread);
+        } catch (scially::cgt_exception &e) {
+            spdlog::error(e.what());
+            return -1;
+        }
         return 0;
     }
 

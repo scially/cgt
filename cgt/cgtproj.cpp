@@ -3,8 +3,8 @@
 //
 
 #include <cgt/cgtproj.h>
+#include <cgt/cgtpath.h>
 #include <osg/CoordinateSystemNode>
-#include <osgDB/FileNameUtils>
 #include <osg/Math>
 
 #include <filesystem>
@@ -12,13 +12,13 @@
 namespace scially {
     namespace fs = std::filesystem;
 
-    gdal_init::gdal_init(const std::string &program_path) {
+    gdal_init::gdal_init() {
 #ifdef _WIN32
         CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "YES");
 #else
         CPLSetConfigOption("GDAL_FILENAME_IS_UTF8", "YES");
 #endif
-        auto base_path = fs::path(program_path).parent_path();
+        auto base_path = fs::path(get_process_filepath()).parent_path();
         gdal_data_ = U8TEXT((base_path / "gdal/data").string());
         proj_data_ = U8TEXT((base_path / "proj/data").string());
         gdal_data_ = osgDB::convertFileNameToNativeStyle(gdal_data_);

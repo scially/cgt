@@ -6,6 +6,7 @@
 
 #include <cgt/cgtmodel.h>
 #include <cgt/cgtproj.h>
+#include <cgt/cgtpath.h>
 #include <spdlog/spdlog.h>
 
 #include <osg/Node>

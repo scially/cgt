@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cgt/cgtmodel.h>
+#include <spdlog/spdlog.h>
 #include <osg/Node>
 #include <osg/CoordinateSystemNode>
 #include <osgDB/ConvertUTF>
@@ -15,16 +16,10 @@
 #include <memory>
 #include <functional>
 
-#ifdef _WIN32
-#define U8TEXT(s) osgDB::convertStringFromCurrentCodePageToUTF8(s)
-#else
-#define U8TEXT(s) s
-#endif
-
 namespace scially {
     class gdal_init {
     public:
-        gdal_init(const std::string &program_path);
+        gdal_init();
 
     private:
         std::string gdal_data_;

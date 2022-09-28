@@ -23,9 +23,8 @@ namespace scially {
     }; // struct ogr_feature_deleter
 
     void osg_export::set_extent(const std::string& shp){
-        auto s = U8TEXT(shp);
         std::unique_ptr<GDALDataset, gdal_dataset_deleter> dataset(
-                (GDALDataset *) GDALOpenEx(s.c_str(),
+                (GDALDataset *) GDALOpenEx(U8TEXT(shp).c_str(),
                                            GDAL_OF_VECTOR,
                                            nullptr,
                                            nullptr,
@@ -34,19 +33,22 @@ namespace scially {
             throw cgt_exception("could not open " + shp);
         }
 
-        OGRLayer* layer = dataset->GetLayer(0);
-        std::unique_ptr<OGRFeature, ogr_feature_deleter> feature (layer->GetFeature(0));
-        if(feature == nullptr){
+        OGRLayer *layer = dataset->GetLayer(0);
+        std::unique_ptr<OGRFeature, ogr_feature_deleter> feature(layer->GetFeature(0));
+        if (feature == nullptr) {
             throw cgt_exception("could find geom feature in " + shp);
         }
-
         geometry_.reset(feature->GetGeometryRef()->clone());
+
         osg_modeldata modeldata;
-        char *pszWKT = nullptr;
-        layer->GetSpatialRef()->exportToProj4(&pszWKT);
-        modeldata.set_srs(pszWKT);
+        if (layer->GetSpatialRef() == nullptr) {
+            throw cgt_exception("could find spartial information in " + shp);
+        }
+        char *target_wktsrs = nullptr;
+        layer->GetSpatialRef()->exportToWkt(&target_wktsrs);
+        modeldata.set_srs(target_wktsrs);
         proj_ = std::make_unique<cgt_proj>(source_metadata_, modeldata);
-        delete pszWKT;
+        delete target_wktsrs;
     }
 
     bool osg_export::is_intersect(const osg::Node& node){
@@ -95,7 +97,7 @@ namespace scially {
                 if (!fs::exists(to))
                     fs::create_directories(to);
                 spdlog::info("copy {}", name);
-                fs::copy(from, to);
+                fs::copy(from, to, fs::copy_options::overwrite_existing);
             }
             spdlog::info("===========================================================================");
             source_metadata_.write(target_dir_ + "/metadata.xml");
