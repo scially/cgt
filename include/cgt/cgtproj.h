@@ -17,7 +17,7 @@
 #include <functional>
 
 namespace scially {
-    class gdal_init {
+    class CGTLIBRARY gdal_init {
     public:
         gdal_init();
 
@@ -26,7 +26,7 @@ namespace scially {
         std::string proj_data_;
     };
 
-    class cgt_proj {
+    class CGTLIBRARY cgt_proj {
     public:
         cgt_proj(const osg_modeldata &source_modeldata, const osg_modeldata &target_modeldata);
 

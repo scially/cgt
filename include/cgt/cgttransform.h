@@ -7,7 +7,7 @@
 #include <cgt/cgtcore.h>
 
 namespace scially {
-    class osg_transform : public osg_base {
+    class CGTLIBRARY osg_transform : public osg_base {
     public:
         osg_transform(const std::string &source_dir, const std::string &target_dir)
                 : osg_base(source_dir, target_dir) {

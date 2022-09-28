@@ -6,7 +6,7 @@
 
 #include <cgt/cgtmodel.h>
 #include <cgt/cgtproj.h>
-#include <cgt/cgtpath.h>
+#include <cgt/cgtcommon.h>
 #include <spdlog/spdlog.h>
 
 #include <osg/Node>
@@ -20,18 +20,20 @@
 namespace scially {
     using vec3_transform = std::function<osg::Vec3(osg::Vec3)>;
 
-    class node_operator {
+    class CGTLIBRARY node_operator {
     public:
-        void read(const std::string& path);
-        void write(const std::string& dir);
-        void apply(const std::string& base_path, const vec3_transform&);
+        void read(const std::string &path);
+
+        void write(const std::string &dir);
+
+        void apply(const std::string &base_path, const vec3_transform &);
 
     private:
         osg::ref_ptr<osg::Node> node_;
-        std::string   node_name_;
+        std::string node_name_;
     };
 
-    class osg_base {
+    class CGTLIBRARY osg_base {
     public:
         static constexpr double DOUBLE_EPS = 1e-5;
 

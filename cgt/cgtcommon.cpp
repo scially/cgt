@@ -2,7 +2,7 @@
 // Created by adminstrator on 2022/9/28.
 //
 
-#include <cgt/cgtpath.h>
+#include <cgt/cgtcommon.h>
 #include <filesystem>
 
 #if defined(_WIN32)

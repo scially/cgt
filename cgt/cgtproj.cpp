@@ -3,7 +3,7 @@
 //
 
 #include <cgt/cgtproj.h>
-#include <cgt/cgtpath.h>
+#include <cgt/cgtcommon.h>
 #include <osg/CoordinateSystemNode>
 #include <osg/Math>
 

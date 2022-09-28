@@ -3,7 +3,7 @@
 1. 支持投影坐标系以及WGS84之间坐标转换。
 2. 支持根据矢量范围线导出对应瓦片。
 3.
-百度网盘下载地址: [https://pan.baidu.com/s/1AdLGNJiA2iKKYbFwmGKQ5g?pwd=lxsa](https://pan.baidu.com/s/1AdLGNJiA2iKKYbFwmGKQ5g?pwd=lxsa)
+百度网盘下载地址: [https://pan.baidu.com/s/1wfpVE4SuvUKW-ceSdaLDdA?pwd=7np4](https://pan.baidu.com/s/1wfpVE4SuvUKW-ceSdaLDdA?pwd=7np4)
 
 # 用法说明
 
@@ -25,7 +25,7 @@ Subcommands:
   transform                   coordinate transform
   export                      export osgb data
   
-如果没有设置source-srs,source-origin选项,cgt默认会在输入根目录下寻找metadata.xml
+如果没有设置source-srs,source-origin选项,cgt默认会在输入根目录下寻找metadata.xml,支持中文路径
 ```
 ### transform
 ```shell
@@ -42,7 +42,7 @@ cgt [options] export
 Options:
   --shapefile TEXT:FILE REQUIRED  export extent
   -c,--copy BOOLEAN               copy tile(default: true)
-  默认会在范围线的Tile拷贝的out路径下，通过设置 -c false 取消拷贝，只输出符合要求的瓦片名
+  默认会在范围线的Tile拷贝的out路径下,通过设置 -c false 取消拷贝,只输出符合要求的瓦片名
 ```
 ## 示例命令
 
@@ -58,9 +58,11 @@ cgt.exe -i {DATA} -o ${OUT_DIR} export --shapefile {shp, geojson}
 ### 倾斜摄影数据
 
 倾斜摄影数据仅支持 smart3d 格式的 osgb 组织方式：
-- 每个瓦片目录下，必须有个和目录名同名的 osgb 文件，否则无法识别根节点；
 
-正确的目录结构示意：
+- 根目录下可以有多个Data文件夹，比如Data1,Data2等
+- 最多有一个metadata.xml文件，且必须放在根目录下
+- 每个瓦片目录下，必须有个和目录名同名的 osgb 文件，否则无法识别根节点；  
+  正确的目录结构示意：
 
 ```
 - Your-data-folder

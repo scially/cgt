@@ -48,7 +48,7 @@ namespace scially {
         layer->GetSpatialRef()->exportToWkt(&target_wktsrs);
         modeldata.set_srs(target_wktsrs);
         proj_ = std::make_unique<cgt_proj>(source_metadata_, modeldata);
-        delete target_wktsrs;
+        CPLFree(target_wktsrs);
     }
 
     bool osg_export::is_intersect(const osg::Node& node){
